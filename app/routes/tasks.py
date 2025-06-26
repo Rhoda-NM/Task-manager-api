@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models import Task, User
 from app.schema import TaskSchema
+from flask_sqlalchemy import pagination
 
 tasks_ns = Namespace('tasks', description='Task operations')
 
@@ -51,7 +52,7 @@ class TaskList(Resource):
         else:
             query = query.order_by(Task.created_at.desc())
 
-        paginated = query.paginate(page, per_page, error_out=False)
+        paginated = db.paginate(query, page=page, per_page=per_page, error_out=False)   
 
         return {
             'tasks': task_list_schema.dump(paginated.items),
