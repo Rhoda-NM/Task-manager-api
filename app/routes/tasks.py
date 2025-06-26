@@ -5,6 +5,7 @@ from app import db
 from app.models import Task, User
 from app.schema import TaskSchema
 from flask_sqlalchemy import pagination
+from datetime import datetime
 
 tasks_ns = Namespace('tasks', description='Task operations')
 
@@ -95,6 +96,13 @@ class TaskDetail(Resource):
         task.title = data.get('title', task.title)
         task.description = data.get('description', task.description)
         task.completed = data.get('completed', task.completed)
+        task.priority = data.get('priority', task.priority)
+        due_date_str = data.get('due_date')
+        if due_date_str:
+            try:
+                task.due_date = datetime.fromisoformat(due_date_str)
+            except ValueError:
+                return {'message': 'Invalid due date format'}, 400
         db.session.commit()
         return task_schema.dump(task), 200
 
